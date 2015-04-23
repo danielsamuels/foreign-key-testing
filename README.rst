@@ -33,4 +33,6 @@ To see it in action install the requirements and run ``./bisect.sh``, you should
 
 Then head over to ``cms/apps/media/models.py`` and uncomment line 15, re-run ``./bisect.sh`` and you will see it works. Strange! If you comment out almost any field in the other models, you will see that it runs correctly.
 
-When debugging the issue, it seems to be a reverse relation from Reversion - the ``Version.object`` field - which returns as 'None' for some reason.  Various things 'fixed' the error, including commenting out the 'Revision.user' field.
+When debugging the issue, it seems to be a reverse relation from Reversion - the ``Version.object`` field - which returns as 'None' for some reason.  Various things 'fixed' the error, including commenting out the 'Revision.user' field but these were not viable long-term fixes.  Simply changing the ForeignKey ``to`` value to a string rather than a direct model reference fixed the issue too, so that was the solution we ended up using.  There's likely some weird stuff happening with contenttypes or similar with regards to how they load models, that would likely be a good place to start if you're looking to debug the problem.
+
+It's worth noting the specific commit in Django which caused this error to start occuring, it's `this one <https://github.com/django/django/commit/a1ba4627931591b80afa46e38e261f354151d91a>`_ as determined by a ``git bisect``.
